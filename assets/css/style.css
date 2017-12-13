@@ -1,15 +1,27 @@
 table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
 }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
+td,
+th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
 }
 
 tr:nth-child(even) {
-  background-color: #dddddd;
+    background-color: #dddddd;
+}
+
+#list {
+    overflow-y: scroll;
+    height: 350px;
+}
+
+#liveVideo,
+#embedded-video {
+    height: 50%;
+    width: 50%;
 }
