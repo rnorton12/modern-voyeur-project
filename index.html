@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>WebCam</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb"
+        crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+</head>
+<body class="bg-success">
+    <!--navbar-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Modern Voyeur</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <!--this was mr-auto-->
+
+　
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Camera List</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a id="list" class="dropdown-item" href="#">Options</a>
+                        <a class="dropdown-item" href="#"></a>
+                        </div>
+
+                </li>
+
+            </ul>
+            </div>
+    </nav>
+    <!--end of navbar-->
+    <div class="wrapper">
+        <div class="container-fluid">
+            <!-- page heading goes here -->
+            <div class="row my-5">
+                <div class="col-md-12 text-center">
+                    <span id="heading"></span>
+                </div>
+            </div>
+ 
+            <!-- item buttons go here -->
+            <div class="row mb-5">
+                <div class="col-md-12 text-left">
+                    <div id="embedded-video">
+                    </div>
+                    <div id="buttons">
+                    </div>
+                </div>
+            </div>
+            <!-- "back" and "next" button go here -->
+            <div class="row my-5">
+                <div class="col-md-12 text-center">
+                    <button class="btn btn-info back" id="back-button" type="button">
+                        Back</button>
+                    <button class="btn btn-info next" id="next-button" type="button">
+                        Next</button>
+                </div>
+            </div>
+            <div class="row my-5">
+                <div class="col-md-12 text-left">
+                    <div id="table-summary">
+                    </div>
+                    <br>
+                    <div id="table-details">
+                    </div>
+                </div>
+            </div>
+            <!-- the page footer goes here -->
+            <div class="row">
+                <div class="col-md-12 footer bg-muted text-center text-muted">
+                    <span>© 2017: Roy Norton</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- javascripts go here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+        integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+        integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+        crossorigin="anonymous"></script>
+    <script src="./assets/javascript/apps.js"></script>
+    
+</body>
+</html>
