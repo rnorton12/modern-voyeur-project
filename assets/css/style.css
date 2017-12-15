@@ -23,5 +23,16 @@ tr:nth-child(even) {
 #liveVideo,
 #embedded-video {
     height: 50%;
-    width: 50%;
+    width: 60%;
+}
+
+#footer {
+    background: #f8f9fa;
+    height: 45px;
+}
+
+.footer,
+.footer span {
+    color: #000;
+
 }

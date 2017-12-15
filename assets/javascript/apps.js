@@ -1,7 +1,7 @@
 $(document).ready(function() {
     var maxLimit = 10;
     var myOffset = 0;
-
+    
     var countryCodeObjectArray = [];
 
     /* this is an array of objects
@@ -15,6 +15,40 @@ $(document).ready(function() {
     var countryWithLiveWebCams = [];
     var currentCountryObject = {};
     var currentArrayIndex = 0; // index into array of current country with live webCams
+    
+hideButtons();
+    
+function hideButtons(){
+    $("#back-button").hide();
+    $("#next-button").hide();
+}
+function showButtons(){
+    $("#back-button").show();
+    $("#next-button").show();
+}    
+    
+//hiding the button on webpage load, need to .show() when user clicks on webcam country
+
+
+$(".dropdown-item").on("click", function(){
+    showButtons();
+    $("iframe").slideUp(900);
+    
+
+ // need to write an if statement depending on amount of cameras the buttons will display
+    if(maxLimit < 10){
+        hideButtons();
+    }
+    else if(maxLimit > 10) {
+        
+        $("#next-button").show();
+        
+    }
+});
+
+
+
+
 
 
 
@@ -34,14 +68,16 @@ $(document).ready(function() {
             }
         });
 
-        //$("#embedded-video").appendTo($());
+        //$("#embedded-video").appendTo($(displayRandomWebcamToDiv));
     }
     displayRandomWebcam();
 
 
 
     // need work to display automatically to webpage
-
+    // function displayRandomWebcamToDiv() {
+        
+        
     // var index = $(this).attr("value");
     //         var webCamId = $(this).attr("value");
     //         var webCamTitle = $(this).attr("name");
@@ -60,6 +96,9 @@ $(document).ready(function() {
     //             $("#embedded-video").empty();
     //             $("#embedded-video").append($webCam);
     //             $("#embedded-video").append('<script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>');
+        
+    // }
+
 
 
     // ISO 3166-1-alpha-2 - country codes
@@ -344,6 +383,7 @@ $(document).ready(function() {
         var limit = maxLimit;
         // var webcamObject = countryWithLiveWebCams[currentArrayIndex];
         var temp = myOffset - limit;
+        scrollTo(0,0);///======scrolling to top after back button is pressed
         if (myOffset !== 0) {
             if (temp < 0) {
                 myOffset = 0;
@@ -359,6 +399,7 @@ $(document).ready(function() {
         var limit = maxLimit;
         // var webcamObject = countryWithLiveWebCams[currentArrayIndex];
         var temp = myOffset + limit;
+        scrollTo(0,0);///=======scrolling to top after button pressed
         if (myOffset < currentCountryObject.totalCams) {
             if (temp > currentCountryObject.totalCams) {
                 myOffset = myOffset + (currentCountryObject.totalCams - myOffset);
@@ -375,7 +416,7 @@ $(document).ready(function() {
         var webCamId = $(this).attr("value");
         var webCamTitle = $(this).attr("name");
         var webCamObject = getWebcamById(webCamId);
-
+scrollTo(0,0);///=======scrolling to top after button pressed
         if (webCamObject !== undefined) {
             // sample: <a name="lkr-timelapse-player" data-id="1010244116" data-play="live" href="https://lookr.com/1010244116" target="_blank">Lausanne › South-East: Place de la Palud</a><script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>
             var $webCam = $("<a>");
@@ -398,7 +439,7 @@ $(document).ready(function() {
         var webCamId = $(this).attr("value");
         var webCamTitle = $(this).attr("name");
         var webCamObject = getWebcamById(webCamId);
-
+scrollTo(0,0);///=======scrolling to top after button pressed
         if (webCamObject !== undefined) {
             // sample: <a name="lkr-timelapse-player" data-id="1381307807" data-play="day" href="https://lookr.com/1381307807" target="_blank">Pieksämäki: Pieksämäen asemanseutua</a><script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>
             var $webCam = $("<a>");
