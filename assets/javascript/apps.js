@@ -29,12 +29,12 @@ $(document).ready(function() {
 
     // disable the Next button on the page so it is not clickable
     function disableNextButton() {
-        $("#back-button").prop("disabled", true);
+        $("#next-button").prop("disabled", true);
     }
 
     // enable the Next button on the page so it is clickable
     function enableNextButton() {
-        $("#back-button").prop("disabled", false);
+        $("#next-button").prop("disabled", false);
     }
 
 hideButtons();
@@ -229,9 +229,27 @@ $(".dropdown-item").on("click", function(){
         });
 
         if (fwd) {
-            enableNextButton();
+            console.log("I'm here: " + webcamObject.webCamsRemaining.next);           
+
+            if (webcamObject.webCamsRemaining.next < maxLimit) {
+
+            disableNextButton();
+
+            } else {
+                enableNextButton();
+             }
+
         } else {
-            enableBackButton();
+           
+           // enableBackButton();
+        
+            if (webcamObject.webCamsRemaining.back > 0){
+
+            enableNextButton();
+
+            }else if(webcamObject.webCamsRemaining.back === 0){
+                disableBackButton();
+            }
         }
         return webcamObject;
     }
@@ -449,6 +467,8 @@ $(".dropdown-item").on("click", function(){
             console.log("next: " + currentCountryObject.webCamsRemaining.next);
             console.log("back: " + currentCountryObject.webCamsRemaining.back);
         }
+
+
     });
 
     $(document).on("click", "#live-webcam", function() {
