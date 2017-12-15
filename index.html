@@ -80,19 +80,20 @@
             <!-- "back" and "next" button go here -->
             <div class="row my-5">
                 <div class="col-md-12 text-center">
-                    <button class="btn btn-info back" id="back-button" type="button">
+                    <button class="btn btn-info back" id="back-button" type="button"><i class="fa fa-arrow-circle-o-left" aria-hidden="true"></i> 
                         Back</button>
                     <button class="btn btn-info next" id="next-button" type="button">
-                        Next</button>
+                        Next <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i></button>
                 </div>
             </div>
-            <div id="pageDisplay" class="col-md-12 text-center">Page 1</div>
+            
 
 
             <!-- the page footer goes here -->
             <div class="row">
-                <div class="col-md-12 footer bg-muted text-center text-muted">
+                <div id="footer" class="col-md-12 footer bg-muted text-center text-muted fixed-bottom">
                     <span>© 2017: Roy Norton</span>
+                    <div id="pageDisplay" class="col-md-12 footer text-center">Page 1</div>
                 </div>
             </div>
         </div>
