@@ -68,6 +68,11 @@ $(".dropdown-item").on("click", function(){
 });
 
 
+
+
+
+
+
     // display random webcams
     function displayRandomWebcam() {
 
@@ -188,7 +193,7 @@ $(".dropdown-item").on("click", function(){
         });
     }
 
-    function queryWebcamsByOffset(webcamObject, offset, limit, fwd) {
+    function queryWebcamsByOffset(webcamObject, offset, limit) {
         //curl --get --include 'https://webcamstravel.p.mashape.com/webcams/list/continent=AF?lang=en&show=webcams%3Aimage%2Clocation' -H 'X-Mashape-Key: JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP'
         var key = "JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP";
         $.ajax({
@@ -208,32 +213,17 @@ $(".dropdown-item").on("click", function(){
             processData: false,
             success: function(data) {
 
+                if (data.result.total) {
+                    //console.log(data);
                     webcamObject.webcams = [];
                     webcamObject.webcams = data.result.webcams;
-                    if (fwd) {
-                        webcamObject.webCamsRemaining.next = webcamObject.webCamsRemaining.next - data.result.webcams.length;
-                        webcamObject.webCamsRemaining.back = offset;
-                    } else {
-                        webcamObject.webCamsRemaining.next = webcamObject.totalCams - webcamObject.webCamsRemaining.back;
-                        webcamObject.webCamsRemaining.back = offset;
-                    }
-
-                    console.log("next: " + webcamObject.webCamsRemaining.next);
-                    console.log("back: " + webcamObject.webCamsRemaining.back);
-
                     renderTableDetails(webcamObject);
+                }
             },
             error: function() {
                 console.log("Cannot reach data");
             }
         });
-
-        if (fwd) {
-            enableNextButton();
-        } else {
-            enableBackButton();
-        }
-        return webcamObject;
     }
 
     function renderButton(webcamObject, index) {
@@ -405,14 +395,6 @@ $(".dropdown-item").on("click", function(){
         currentCountryObject.totalCams = countryWithLiveWebCams[value].totalCams;
         currentCountryObject.webcams = [];
         currentCountryObject.webcams = countryWithLiveWebCams[value].webcams;
-        currentCountryObject.webCamsRemaining = {
-            next: 0,
-            back: 0
-        };
-        if (currentCountryObject.totalCams > maxLimit) {
-            currentCountryObject.webCamsRemaining.next = currentCountryObject.totalCams - maxLimit;
-            currentCountryObject.webCamsRemaining.back = 0;
-        }
 
         renderTableSummary(currentCountryObject);
         renderTableDetails(currentCountryObject);
@@ -420,34 +402,33 @@ $(".dropdown-item").on("click", function(){
 
     $(document).on("click", "#back-button", function() {
         var limit = maxLimit;
-        scrollTo(0,0);///=======scrolling to top after button pressed
-		if (currentCountryObject.webCamsRemaining.back > 0) {
-            disableBackButton(); // while data is being retrieved
-            myOffset -= maxLimit;
-            var returnObject = queryWebcamsByOffset(currentCountryObject, myOffset, limit, false);
-            currentCountryObject.webCamsRemaining = returnObject.webCamsRemaining;
+        // var webcamObject = countryWithLiveWebCams[currentArrayIndex];
+        var temp = myOffset - limit;
+        scrollTo(0,0);///======scrolling to top after back button is pressed
+        if (myOffset !== 0) {
+            if (temp < 0) {
+                myOffset = 0;
+            } else {
+                myOffset = temp;
+            }
+            console.log("myOffset: " + myOffset);
+            queryWebcamsByOffset(currentCountryObject, myOffset, limit);
         }
-        console.log("next: " + currentCountryObject.webCamsRemaining.next);
-        console.log("back: " + currentCountryObject.webCamsRemaining.back);
     });
 
     $(document).on("click", "#next-button", function() {
         var limit = maxLimit;
-
+        // var webcamObject = countryWithLiveWebCams[currentArrayIndex];
+        var temp = myOffset + limit;
         scrollTo(0,0);///=======scrolling to top after button pressed
-        if (currentCountryObject.webCamsRemaining.next > 0) {
-            disableNextButton();  // while data is being retrieved
-            myOffset += maxLimit;
-
-            if ((currentCountryObject.totalCams - currentCountryObject.webCamsRemaining.next) < maxLimit) {
-                limit = currentCountryObject.totalCams - currentCountryObject.webCamsRemaining.next;
+        if (myOffset < currentCountryObject.totalCams) {
+            if (temp > currentCountryObject.totalCams) {
+                myOffset = myOffset + (currentCountryObject.totalCams - myOffset);
+            } else {
+                myOffset = myOffset + maxLimit;
             }
-
-            var returnObject = queryWebcamsByOffset(currentCountryObject, myOffset, limit, true);
-            currentCountryObject.webCamsRemaining = returnObject.webCamsRemaining;
-
-            console.log("next: " + currentCountryObject.webCamsRemaining.next);
-            console.log("back: " + currentCountryObject.webCamsRemaining.back);
+            console.log("myOffset: " + myOffset);
+            queryWebcamsByOffset(currentCountryObject, myOffset, limit);
         }
     });
 
