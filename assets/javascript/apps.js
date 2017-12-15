@@ -221,7 +221,7 @@ $(".dropdown-item").on("click", function(){
                     console.log("next: " + webcamObject.webCamsRemaining.next);
                     console.log("back: " + webcamObject.webCamsRemaining.back);
 
-                    renderTableDetails(webcamObject);
+                    renderTableDetails(webcamObject, fwd);
                 renderMap(webcamObject);
             },
             error: function() {
@@ -312,8 +312,9 @@ $(".dropdown-item").on("click", function(){
     }
 
     // {"countryCode":"AL","countryName":"Albania","totalCams":1,"webcams":[{"id":"1496005860","status":"active","title":"Tirana: Skanderbeg Square","image":{"current":{"icon":"https://images.webcams.travel/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/preview/1496005860.jpg","toenail":"https://images.webcams.travel/thumbnail/1496005860.jpg"},"daylight":{"icon":"https://images.webcams.travel/daylight/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/daylight/preview/1496005860.jpg","toenail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg"},"sizes":{"icon":{"width":48,"height":48},"thumbnail":{"width":200,"height":112},"preview":{"width":400,"height":224},"toenail":{"width":200,"height":112}},"update":1512921712},"location":{"city":"Tirana","region":"Tiranë","region_code":"AL.50","country":"Albania","country_code":"AL","continent":"Europe","continent_code":"EU","latitude":41.327398,"longitude":19.818828,"timezone":"Europe/Tirane"},"url":{"current":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square"},"daylight":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight"},"edit":"https://lookr.com/edit/1496005860"}}]}
-    function renderTableDetails(webcamObject) {
-        var tableHeadingArray = ["ID", "Status", "Title", "Thumbnail", "City", "Map", "url"];
+    var cameraNumber = 1;
+    function renderTableDetails(webcamObject, fwd) {
+        var tableHeadingArray = ["Number", "Status", "Title", "City", "Map", "Actions"];
         var $table = $("<table>");
         var $tableHeadRow = $("<tr>");
 
@@ -332,21 +333,19 @@ $(".dropdown-item").on("click", function(){
             $tableRow.attr("height", "100%");
 
             var $tableCol1 = $("<td>");
-            $tableCol1.text(webcamObject.webcams[i].id);
+            $tableCol1.text(cameraNumber);
+            
+            if(fwd) {
+                cameraNumber++;
+            } else {
+                cameraNumber--;
+            }
 
             var $tableCol2 = $("<td>");
             $tableCol2.text(webcamObject.webcams[i].status);
 
             var $tableCol3 = $("<td>");
             $tableCol3.text(webcamObject.webcams[i].title);
-
-            var $tableCol4 = $("<td>");
-            var $image = $("<img>");
-            $image.attr("src", webcamObject.webcams[i].image.current.thumbnail);
-            $image.attr("alt", "camera image");
-            $image.attr("width", "20px");
-            $image.attr("height", "20px");
-            $tableCol4.append($image);
 
             var $tableCol5 = $("<td>");
             $tableCol5.text(webcamObject.webcams[i].location.city);
@@ -388,14 +387,13 @@ $(".dropdown-item").on("click", function(){
                 $button.attr("value", webcamObject.webcams[i].id);
                 $button.attr("name", webcamObject.webcams[i].title);
                 // Providing the initial button text
-                $button.text("Day");
+                $button.text("Replay");
                 $tableCol7.append($button);
             }
 
             $tableRow.append($tableCol1);
             $tableRow.append($tableCol2);
             $tableRow.append($tableCol3);
-            $tableRow.append($tableCol4);
             $tableRow.append($tableCol5);
             $tableRow.append($tableCol6);
             $tableRow.append($tableCol7);
@@ -466,7 +464,7 @@ $(".dropdown-item").on("click", function(){
         }
 
         renderTableSummary(currentCountryObject);
-        renderTableDetails(currentCountryObject);
+        renderTableDetails(currentCountryObject, true);
         renderMap(currentCountryObject);
     });
 
