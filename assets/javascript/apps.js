@@ -14,8 +14,6 @@ $(document).ready(function() {
     */
     var countryWithLiveWebCams = [];
     var currentCountryObject = {};
-    var currentArrayIndex = 0; // index into array of current country with live webCams
-
 
 // disable the Back button on the page so it is not clickable
     function disableBackButton() {
@@ -310,6 +308,7 @@ $(".dropdown-item").on("click", function(){
 
     function renderTableDetails(webcamObject) {
         var tableHeadingArray = ["Number", "Status", "Title", "City", "Map", "Actions"];
+        var maxTableColumns = 6;
         var $table = $("<table>");
         var $tableHeadRow = $("<tr>");
 
@@ -323,76 +322,78 @@ $(".dropdown-item").on("click", function(){
         $table.append($tableHeadRow);
 
         // generate table data
-        for (var i = 0; i < webcamObject.webcams.length; i++) {
+        for (var row = 0; row < webcamObject.webcams.length; row++) {
             var $tableRow = $("<tr>");
             $tableRow.attr("height", "100%");
+            for (var col = 1; col <= maxTableColumns; col++) {
+                var $tableCol = $("<td>");
 
-            var $tableCol1 = $("<td>");
+                switch(col) {
+                    case 1: // column 1
             var page = webcamObject.pages.current;
             var totalCams = webcamObject.totalCams;
-            var webCamNumber = (i + 1) + (page - 1) * maxLimit;
+                        var webCamNumber = (row + 1) + (page - 1) * maxLimit;
             console.log("page: " + page);
             console.log("webCamNumber: " + webCamNumber);
-            $tableCol1.text(webCamNumber);
-
-            var $tableCol2 = $("<td>");
-            $tableCol2.text(webcamObject.webcams[i].status);
-
-            var $tableCol3 = $("<td>");
-            $tableCol3.text(webcamObject.webcams[i].title);
-
-            var $tableCol5 = $("<td>");
-            $tableCol5.text(webcamObject.webcams[i].location.city);
-
-            // insert Map here
-            var $tableCol6 = $("<td>");
-            $tableCol6.attr("height", "300px");
-            $tableCol6.attr("width", "300px");
+                        $tableCol.text(webCamNumber);
+                        break;
+                    case 2: // column 2
+                        $tableCol.text(webcamObject.webcams[row].status);
+                        break;
+                    case 3: // column 3
+                        $tableCol.text(webcamObject.webcams[row].title);
+                        break;
+                    case 4: // column 4
+                        $tableCol.text(webcamObject.webcams[row].location.city);
+                        break;
+                    case 5: // column 5
+                        $tableCol.attr("height", "200px");
+                        $tableCol.attr("width", "200px");
             var $mapImage = $("<div>");
             $mapImage.addClass("map-image");
             var $mapDiv = $("<div>");
-            $mapDiv.attr("id", "map-" + i);
-            $mapDiv.attr("style", "position: relative; overflow: hidden; width: 300px; height: 300px;");
+                        $mapDiv.attr("id", "map-" + row);
+                        $mapDiv.attr("style", "position: relative; overflow: hidden; width: 200px; height: 200px;");
             $($mapImage).append($mapDiv);
-            $($tableCol6).append($mapImage);
-
-            var $tableCol7 = $("<td>");
-            if (webcamObject.webcams[i].player.live.available) {
+                        $($tableCol).append($mapImage);
+                        break;
+                    default: // column 6
+                         var $tableCol = $("<td>");
+                         if (webcamObject.webcams[row].player.live.available) {
                 var $button = $("<button>");
                 // set the class
                 $button.addClass("btn btn-primary view-webcam m-1");
                 $button.attr("id", "live-webcam");
                 $button.attr("type", "button");
                 // Adding a data-attribute
-                $button.attr("value", webcamObject.webcams[i].id);
-                $button.attr("name", webcamObject.webcams[i].title);
+                             $button.attr("value", webcamObject.webcams[row].id);
+                             $button.attr("name", webcamObject.webcams[row].title);
                 // Providing the initial button text
                 $button.text("Live");
-                $tableCol7.append($button);
+                             $tableCol.append($button);
             }
 
-            if (webcamObject.webcams[i].player.day.available) {
+                         if (webcamObject.webcams[row].player.day.available) {
                 var $button = $("<button>");
                 // set the class
                 $button.addClass("btn btn-primary m-1");
                 $button.attr("id", "day-webcam");
                 $button.attr("type", "button");
                 // Adding a data-attribute
-                $button.attr("value", webcamObject.webcams[i].id);
-                $button.attr("name", webcamObject.webcams[i].title);
+                             $button.attr("value", webcamObject.webcams[row].id);
+                             $button.attr("name", webcamObject.webcams[row].title);
                 // Providing the initial button text
                 $button.text("Replay");
-                $tableCol7.append($button);
+                             $tableCol.append($button);
             }
+                 } // end switch
 
-            $tableRow.append($tableCol1);
-            $tableRow.append($tableCol2);
-            $tableRow.append($tableCol3);
-            $tableRow.append($tableCol5);
-            $tableRow.append($tableCol6);
-            $tableRow.append($tableCol7);
+                 $tableRow.append($tableCol);
+
+            } // end for col loop
+
             $table.append($tableRow);
-        }
+        } // end for row loop
 
         　
         $("#table-details").empty();
@@ -442,7 +443,6 @@ $(".dropdown-item").on("click", function(){
     // Adding a click event listener to all elements with a class of "animal"
     $(document).on("click", ".country-code", function() {
         var value = $(this).attr("value");
-        currentArrayIndex = value;
         currentCountryObject.countryCode = countryWithLiveWebCams[value].countryCode;
         currentCountryObject.countryName = countryWithLiveWebCams[value].countryName;
         currentCountryObject.totalCams = countryWithLiveWebCams[value].totalCams;
