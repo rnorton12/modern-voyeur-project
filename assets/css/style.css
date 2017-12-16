@@ -6,13 +6,22 @@ table {
 
 td,
 th {
-    border: 1px solid #dddddd;
-    text-align: left;
+    border: 1px solid #ddd;
+    text-align: center;
     padding: 8px;
 }
 
 tr:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #ddd;
+}
+
+td {
+    background: #a5a5a5;
+}
+
+th {
+    background: #5a5a5a;
+    color: #ddd;
 }
 
 #list {
@@ -35,4 +44,12 @@ tr:nth-child(even) {
 .footer span {
     color: #000;
     padding: 10px;
+}
+
+.btn-success {
+    width: 75px;
+}
+
+#pageDescription {
+    margin-top: 80px;
 }
