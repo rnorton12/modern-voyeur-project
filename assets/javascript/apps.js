@@ -14,8 +14,6 @@ $(document).ready(function() {
     */
     var countryWithLiveWebCams = [];
     var currentCountryObject = {};
-    var currentArrayIndex = 0; // index into array of current country with live webCams
-
 
 // disable the Back button on the page so it is not clickable
     function disableBackButton() {
@@ -35,6 +33,28 @@ $(document).ready(function() {
     // enable the Next button on the page so it is clickable
     function enableNextButton() {
         $("#next-button").prop("disabled", false);
+    }
+
+    // determine if the next button should be enabled or disabled
+    function setNextButtonState(currentPage, totalPages) {
+        if ((totalPages > 1) && (currentPage !== totalPages)) {
+            console.log("enable Next Button");
+            enableNextButton();
+        } else {
+            console.log("disable Next Button");
+            disableNextButton();
+        }
+    }
+
+    // determine if the next button should be enabled or disabled
+    function setBackButtonState(currentPage) {
+        if (currentPage > 1) {
+            console.log("enable Back Button");
+            enableBackButton();
+        } else {
+            console.log("disable Back Button");
+            disableBackButton();
+        }
     }
 
 hideButtons();
@@ -59,8 +79,7 @@ $(".dropdown-item").on("click", function(){
  // need to write an if statement depending on amount of cameras the buttons will display
     if(maxLimit < 10){
         hideButtons();
-    }
-    else if(maxLimit > 10) {
+        } else if (maxLimit > 10) {
         
         $("#next-button").show();
         
@@ -188,7 +207,9 @@ $(".dropdown-item").on("click", function(){
         });
     }
 
-    function queryWebcamsByOffset(webcamObject, offset, limit, fwd) {
+    function queryWebcamsByOffset(webcamObject, offset, limit) {
+        var success = false;
+
         //curl --get --include 'https://webcamstravel.p.mashape.com/webcams/list/continent=AF?lang=en&show=webcams%3Aimage%2Clocation' -H 'X-Mashape-Key: JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP'
         var key = "JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP";
         $.ajax({
@@ -206,53 +227,22 @@ $(".dropdown-item").on("click", function(){
             type: "GET",
             dataType: "json",
             processData: false,
+            async: false, // make this call a synchronous call rather than a ansynchronous
             success: function(data) {
 
                     webcamObject.webcams = [];
                     webcamObject.webcams = data.result.webcams;
-                    if (fwd) {
-                        webcamObject.webCamsRemaining.next = webcamObject.webCamsRemaining.next - data.result.webcams.length;
-                        webcamObject.webCamsRemaining.back = offset;
-                    } else {
-                        webcamObject.webCamsRemaining.next = webcamObject.totalCams - webcamObject.webCamsRemaining.back;
-                        webcamObject.webCamsRemaining.back = offset;
-                    }
-
-                    console.log("next: " + webcamObject.webCamsRemaining.next);
-                    console.log("back: " + webcamObject.webCamsRemaining.back);
-
-                    renderTableDetails(webcamObject, fwd);
-                renderMap(webcamObject);
+                success = true;
             },
             error: function() {
                 console.log("Cannot reach data");
+
+                success = false;
             }
         });
 
-        if (fwd) {
-            console.log("I'm here: " + webcamObject.webCamsRemaining.next);           
-
-            if (webcamObject.webCamsRemaining.next < maxLimit) {
-
-            disableNextButton();
-
-            } else {
-                enableNextButton();
-             }
-
-        } else {
-           
-           // enableBackButton();
-        
-            if (webcamObject.webCamsRemaining.back > 0){
-
-            enableNextButton();
-
-            }else if(webcamObject.webCamsRemaining.back === 0){
-                disableBackButton();
-            }
-        }
-        return webcamObject;
+        console.log("request complete");
+        return success;
     }
 
     function renderButton(webcamObject, index) {
@@ -311,10 +301,13 @@ $(".dropdown-item").on("click", function(){
         $("#table-summary").append($table);
     }
 
-    // {"countryCode":"AL","countryName":"Albania","totalCams":1,"webcams":[{"id":"1496005860","status":"active","title":"Tirana: Skanderbeg Square","image":{"current":{"icon":"https://images.webcams.travel/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/preview/1496005860.jpg","toenail":"https://images.webcams.travel/thumbnail/1496005860.jpg"},"daylight":{"icon":"https://images.webcams.travel/daylight/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/daylight/preview/1496005860.jpg","toenail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg"},"sizes":{"icon":{"width":48,"height":48},"thumbnail":{"width":200,"height":112},"preview":{"width":400,"height":224},"toenail":{"width":200,"height":112}},"update":1512921712},"location":{"city":"Tirana","region":"Tiranë","region_code":"AL.50","country":"Albania","country_code":"AL","continent":"Europe","continent_code":"EU","latitude":41.327398,"longitude":19.818828,"timezone":"Europe/Tirane"},"url":{"current":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square"},"daylight":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight"},"edit":"https://lookr.com/edit/1496005860"}}]}
-    var cameraNumber = 1;
-    function renderTableDetails(webcamObject, fwd) {
+    　
+    // for the current country, this table will show details for each web camera available
+    // sample JSON: {"countryCode":"AL","countryName":"Albania","totalCams":1,"webcams":[{"id":"1496005860","status":"active","title":"Tirana: Skanderbeg Square","image":{"current":{"icon":"https://images.webcams.travel/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/preview/1496005860.jpg","toenail":"https://images.webcams.travel/thumbnail/1496005860.jpg"},"daylight":{"icon":"https://images.webcams.travel/daylight/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/daylight/preview/1496005860.jpg","toenail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg"},"sizes":{"icon":{"width":48,"height":48},"thumbnail":{"width":200,"height":112},"preview":{"width":400,"height":224},"toenail":{"width":200,"height":112}},"update":1512921712},"location":{"city":"Tirana","region":"Tiranë","region_code":"AL.50","country":"Albania","country_code":"AL","continent":"Europe","continent_code":"EU","latitude":41.327398,"longitude":19.818828,"timezone":"Europe/Tirane"},"url":{"current":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square"},"daylight":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight"},"edit":"https://lookr.com/edit/1496005860"}}]}
+
+    function renderTableDetails(webcamObject) {
         var tableHeadingArray = ["Number", "Status", "Title", "City", "Map", "Actions"];
+        var maxTableColumns = 6;
         var $table = $("<table>");
         var $tableHeadRow = $("<tr>");
 
@@ -328,77 +321,78 @@ $(".dropdown-item").on("click", function(){
         $table.append($tableHeadRow);
 
         // generate table data
-        for (var i = 0; i < webcamObject.webcams.length; i++) {
+        for (var row = 0; row < webcamObject.webcams.length; row++) {
             var $tableRow = $("<tr>");
             $tableRow.attr("height", "100%");
+            for (var col = 1; col <= maxTableColumns; col++) {
+                var $tableCol = $("<td>");
 
-            var $tableCol1 = $("<td>");
-            $tableCol1.text(cameraNumber);
-            
-            if(fwd) {
-                cameraNumber++;
-            } else {
-                cameraNumber--;
-            }
-
-            var $tableCol2 = $("<td>");
-            $tableCol2.text(webcamObject.webcams[i].status);
-
-            var $tableCol3 = $("<td>");
-            $tableCol3.text(webcamObject.webcams[i].title);
-
-            var $tableCol5 = $("<td>");
-            $tableCol5.text(webcamObject.webcams[i].location.city);
-
-            // insert Map here
-            var $tableCol6 = $("<td>");
-            $tableCol6.attr("height", "300px");
-            $tableCol6.attr("width", "300px");
+                switch (col) {
+                    case 1: // column 1
+                        var page = webcamObject.pages.current;
+                        var totalCams = webcamObject.totalCams;
+                        var webCamNumber = (row + 1) + (page - 1) * maxLimit;
+                        console.log("page: " + page);
+                        console.log("webCamNumber: " + webCamNumber);
+                        $tableCol.text(webCamNumber);
+                        break;
+                    case 2: // column 2
+                        $tableCol.text(webcamObject.webcams[row].status);
+                        break;
+                    case 3: // column 3
+                        $tableCol.text(webcamObject.webcams[row].title);
+                        break;
+                    case 4: // column 4
+                        $tableCol.text(webcamObject.webcams[row].location.city);
+                        break;
+                    case 5: // column 5
+                        $tableCol.attr("height", "200px");
+                        $tableCol.attr("width", "200px");
             var $mapImage = $("<div>");
             $mapImage.addClass("map-image");
             var $mapDiv = $("<div>");
-            $mapDiv.attr("id", "map-" + i);
-            $mapDiv.attr("style", "position: relative; overflow: hidden; width: 300px; height: 300px;");
+                        $mapDiv.attr("id", "map-" + row);
+                        $mapDiv.attr("style", "position: relative; overflow: hidden; width: 200px; height: 200px;");
             $($mapImage).append($mapDiv);
-            $($tableCol6).append($mapImage);
-
-            var $tableCol7 = $("<td>");
-            if (webcamObject.webcams[i].player.live.available) {
+                        $($tableCol).append($mapImage);
+                        break;
+                    default: // column 6
+                        var $tableCol = $("<td>");
+                        if (webcamObject.webcams[row].player.live.available) {
                 var $button = $("<button>");
                 // set the class
                 $button.addClass("btn btn-primary view-webcam m-1");
                 $button.attr("id", "live-webcam");
                 $button.attr("type", "button");
                 // Adding a data-attribute
-                $button.attr("value", webcamObject.webcams[i].id);
-                $button.attr("name", webcamObject.webcams[i].title);
+                            $button.attr("value", webcamObject.webcams[row].id);
+                            $button.attr("name", webcamObject.webcams[row].title);
                 // Providing the initial button text
                 $button.text("Live");
-                $tableCol7.append($button);
+                            $tableCol.append($button);
             }
 
-            if (webcamObject.webcams[i].player.day.available) {
+                        if (webcamObject.webcams[row].player.day.available) {
                 var $button = $("<button>");
                 // set the class
                 $button.addClass("btn btn-primary m-1");
                 $button.attr("id", "day-webcam");
                 $button.attr("type", "button");
                 // Adding a data-attribute
-                $button.attr("value", webcamObject.webcams[i].id);
-                $button.attr("name", webcamObject.webcams[i].title);
+                            $button.attr("value", webcamObject.webcams[row].id);
+                            $button.attr("name", webcamObject.webcams[row].title);
                 // Providing the initial button text
                 $button.text("Replay");
-                $tableCol7.append($button);
+                            $tableCol.append($button);
             }
+                } // end switch
 
-            $tableRow.append($tableCol1);
-            $tableRow.append($tableCol2);
-            $tableRow.append($tableCol3);
-            $tableRow.append($tableCol5);
-            $tableRow.append($tableCol6);
-            $tableRow.append($tableCol7);
+                $tableRow.append($tableCol);
+
+            } // end for col loop
+
             $table.append($tableRow);
-        }
+        } // end for row loop
 
         　
         $("#table-details").empty();
@@ -448,59 +442,71 @@ $(".dropdown-item").on("click", function(){
     // Adding a click event listener to all elements with a class of "animal"
     $(document).on("click", ".country-code", function() {
         var value = $(this).attr("value");
-        currentArrayIndex = value;
         currentCountryObject.countryCode = countryWithLiveWebCams[value].countryCode;
         currentCountryObject.countryName = countryWithLiveWebCams[value].countryName;
         currentCountryObject.totalCams = countryWithLiveWebCams[value].totalCams;
         currentCountryObject.webcams = [];
         currentCountryObject.webcams = countryWithLiveWebCams[value].webcams;
-        currentCountryObject.webCamsRemaining = {
-            next: 0,
-            back: 0
+
+        // a table will display upto maxLimit camera's in a table.  call each table a 
+        // page.  determine how many pages will be available for display.
+        currentCountryObject.pages = {
+            total: 0,
+            current: 1
         };
-        if (currentCountryObject.totalCams > maxLimit) {
-            currentCountryObject.webCamsRemaining.next = currentCountryObject.totalCams - maxLimit;
-            currentCountryObject.webCamsRemaining.back = 0;
+
+        if (currentCountryObject.totalCams % maxLimit) {
+            currentCountryObject.pages.total = Math.floor(currentCountryObject.totalCams / maxLimit) + 1;
+        } else {
+            currentCountryObject.pages.total = currentCountryObject.totalCams / maxLimit;
         }
 
         renderTableSummary(currentCountryObject);
-        renderTableDetails(currentCountryObject, true);
+        renderTableDetails(currentCountryObject);
         renderMap(currentCountryObject);
+
+        setBackButtonState(currentCountryObject.pages.page);
+        setNextButtonState(currentCountryObject.pages.page, currentCountryObject.pages.total);
     });
 
     $(document).on("click", "#back-button", function() {
         var limit = maxLimit;
+        var offset = myOffset - maxLimit;
+
+        if (queryWebcamsByOffset(currentCountryObject, offset, limit)) {
+            myOffset = offset; // update global offset when successfull
+            currentCountryObject.pages.current--; // update current page count
+            renderTableDetails(currentCountryObject);
+            renderMap(currentCountryObject);
         scrollTo(0,0);///=======scrolling to top after button pressed
-		if (currentCountryObject.webCamsRemaining.back > 0) {
-            disableBackButton(); // while data is being retrieved
-            myOffset -= maxLimit;
-            var returnObject = queryWebcamsByOffset(currentCountryObject, myOffset, limit, false);
-            currentCountryObject.webCamsRemaining = returnObject.webCamsRemaining;
+        } else {
+            // TODO:  show error on web page
         }
-        console.log("next: " + currentCountryObject.webCamsRemaining.next);
-        console.log("back: " + currentCountryObject.webCamsRemaining.back);
+        console.log("current page: " + currentCountryObject.pages.current);
+        setBackButtonState(currentCountryObject.pages.current);
+        setNextButtonState(currentCountryObject.pages.current, currentCountryObject.pages.total);
+
+        　
     });
 
     $(document).on("click", "#next-button", function() {
         var limit = maxLimit;
+        var offset = myOffset + maxLimit;
 
+        if (queryWebcamsByOffset(currentCountryObject, offset, limit)) {
+            myOffset = offset; // update global offset when successfull
+            currentCountryObject.pages.current++; // update current page count
+            renderTableDetails(currentCountryObject);
+            renderMap(currentCountryObject);
         scrollTo(0,0);///=======scrolling to top after button pressed
-        if (currentCountryObject.webCamsRemaining.next > 0) {
-            disableNextButton();  // while data is being retrieved
-            myOffset += maxLimit;
-
-            if ((currentCountryObject.totalCams - currentCountryObject.webCamsRemaining.next) < maxLimit) {
-                limit = currentCountryObject.totalCams - currentCountryObject.webCamsRemaining.next;
+        } else {
+            // TODO:  show error on web page
             }
+        console.log("current page: " + currentCountryObject.pages.current);
+        setBackButtonState(currentCountryObject.pages.current);
+        setNextButtonState(currentCountryObject.pages.current, currentCountryObject.pages.total);
 
-            var returnObject = queryWebcamsByOffset(currentCountryObject, myOffset, limit, true);
-            currentCountryObject.webCamsRemaining = returnObject.webCamsRemaining;
-
-            console.log("next: " + currentCountryObject.webCamsRemaining.next);
-            console.log("back: " + currentCountryObject.webCamsRemaining.back);
-        }
-
-
+        　
     });
 
     $(document).on("click", "#live-webcam", function() {
