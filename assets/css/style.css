@@ -29,7 +29,6 @@ th {
     height: 350px;
 }
 
-#liveVideo,
 #embedded-video {
     height: 50%;
     width: 60%;
@@ -46,10 +45,22 @@ th {
     padding: 10px;
 }
 
-.btn-success {
+.btn-primary {
     width: 75px;
 }
 
 #pageDescription {
-    margin-top: 80px;
+    margin: 80px auto 0 auto;
+    width: 60%;
+}
+
+table {
+    table-layout: fixed;
+}
+
+table,
+td,
+th {
+    border-radius: 8px;
+    padding: 5px;
 }
