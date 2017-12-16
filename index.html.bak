@@ -15,7 +15,7 @@
 
 <body class="bg-success">
     <!--navbar-->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#"><i class="fa fa-globe" aria-hidden="true"></i> Modern Voyeur</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -39,8 +39,9 @@
     <div class="wrapper">
         <div class="container-fluid">
             <h4 id="pageDescription">
-                Modern Voyeur provides users with the ability to view webcams throughout the world, anytime, anywhere. A minimum of ten webcams are diplayed on each page. You can utilize the navigation buttons, Next or Back, to move through the list of available webcams.
-                The location of each available webcam is displayed on a google map with a location marker.
+                Modern Voyeur provides users with the ability to view webcams throughout the world, anytime, anywhere. A minimum of ten webcams are diplayed
+                on each page. You can utilize the navigation buttons, Next or Back, to move through the list of available webcams. The location of each available 
+                webcam is displayed on a google map with a location marker. 
             </h4>
 
             <!-- page heading goes here -->
