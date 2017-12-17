@@ -54,6 +54,10 @@ th {
     width: 60%;
 }
 
+#instructions {
+    margin-right: 20px;
+}
+
 table {
     table-layout: fixed;
 }
