@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var maxLimit = 10;
     var myOffset = 0;
 
@@ -14,32 +14,28 @@ $(document).ready(function() {
     */
     var countryWithLiveWebCams = [];
     var currentCountryObject = {};
-    var countryNamesWithLiveWebcams = [];
+    var timer = undefined;
+    var timerTick = 0;
 
+    // update progress for loading page data
+    function updateProgress() {
+        var text = "Please wait while loading Country Options: ";
+        if (timerTick === 20) {
+            timerTick = 0;
+        } else {
+            timerTick++;
+        }
 
-    function initAutocomplete(data) {
-        var options = {
-
-            data: data,
-
-            list: {
-
-                match: {
-                    enabled: true
-                }
-            },
-
-            theme: "square"
-        };
-
-        $("#searchInput").easyAutocomplete(options);
+        for (var i = 0; i < timerTick; i++) {
+            text = text + ".";
+        }
+        $("#progress").text(text);
     }
 
-
-
-
-
-
+    function clearProgress() {
+        clearInterval(timer);
+        $("#progress").text("");
+    }
 
     // disable the Back button on the page so it is not clickable
     function disableBackButton() {
@@ -82,10 +78,9 @@ $(document).ready(function() {
             disableBackButton();
         }
     }
-    $(function() {
+    $(function () {
         $('[data-toggle="popover"]').popover()
     })
-    hideButtons();
 
     function hideButtons() {
         $("#back-button").hide();
@@ -99,13 +94,13 @@ $(document).ready(function() {
 
     //hiding the button on webpage load, need to .show() when user clicks on webcam country
 
-
-    $(".dropdown-item").on("click", function() {
+　
+    $(".dropdown-item").on("click", function () {
         showButtons();
         $("iframe").slideUp(900);
         $("#pageDescription").fadeOut(1000);
 
-
+　
         // need to write an if statement depending on amount of cameras the buttons will display
         if (maxLimit < 10) {
             hideButtons();
@@ -116,62 +111,42 @@ $(document).ready(function() {
         }
     });
 
-
-    // display random webcams
-    function displayEUWebcam() {
+    // display initial webcam after page loads
+    function displayInitialWebCam() {
 
         var key = "JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP";
-
+        var webCamId = 1384609657;
         $.ajax({
-            url: "https://webcamstravel.p.mashape.com/webcams/list/webcam=1384609657" + "?lang=en&show=webcams%3Aimage%2Clocation%2Curl%2Cplayer",
+            url: "https://webcamstravel.p.mashape.com/webcams/list/webcam=" + webCamId + "?lang=en&show=webcams%3Aimage%2Clocation%2Curl%2Cplayer",
             headers: {
                 "X-Mashape-Key": key
             },
             type: "GET",
-            success: function(response) {
-
+            success: function (response) {
                 console.log(response);
 
-                var webCamObject = response;
-                var webCamTitle = webCamObject.result.webcams[0].title;
-                var webCamURL = webCamObject.result.webcams[0].url.current;
-
-                var $webCam = $("<a>");
-                $webCam.attr("name", "lkr-timelapse-player");
-                $webCam.attr("data-play", "live");
-                $webCam.attr("href", webCamURL);
-                $webCam.attr("target", "_blank");
-                $webCam.text(webCamTitle);
-
-                $("#embedded-video").empty();
-                $("#embedded-video").append($webCam);
-                $("#embedded-video").append('<script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"><\/script>');
-
-
-
+                if (response.result.total > 0) {
+                    renderWebCamVideo(webCamId, response.result.webcams[0], false);
+                }
             },
 
-            error: function() {
+            error: function () {
                 console.log("no webcam");
             }
 
         });
-
-
-
     }
 
-    displayEUWebcam();
-
-
+　
     // ISO 3166-1-alpha-2 - country codes
     function getCountryCodes() {
         var offset = myOffset;
         var limit = maxLimit;
+        timer = setInterval(function () { updateProgress() }, 100);
         $.ajax({
             url: "https://restcountries.eu/rest/v2/all",
             type: "GET",
-            success: function(data) {
+            success: function (data) {
                 console.log(data);
                 console.log("country Code Count: " + data.length);
 
@@ -190,11 +165,27 @@ $(document).ready(function() {
                     requests.push(queryWebCamsByCountry(countryCodeObjectArray[i], offset, limit));
                 }
 
-                $.when.apply($, requests).then(function() {
-                    initAutocomplete(countryNamesWithLiveWebcams);
+                $.when.apply($, requests).then(function () {
+                    countryWithLiveWebCams.sort(function (a, b) {
+                        var nameA = a.countryName.toLowerCase();
+                        var nameB = b.countryName.toLowerCase();
+
+                        if (nameA < nameB) { //sort string ascending
+                            return -1
+                        } else if (nameA > nameB) {
+                            return 1
+                        }
+                        return 0 //default return value (no sorting)
+                    });
+
+                    for (var i = 0; i < countryWithLiveWebCams.length; i++) {
+                        renderCountryOptions(countryWithLiveWebCams[i], i);
+                    }
+                    clearProgress();
+                    displayInitialWebCam();
                 });
             },
-            error: function() {
+            error: function () {
                 console.log("error getting country codes");
             }
         });
@@ -202,7 +193,7 @@ $(document).ready(function() {
 
     // curl --get --include 'https://webcamstravel.p.mashape.com/webcams/list/category=beach?lang=en&show=webcams%3Aimage%2Clocation' -H 'X-Mashape-Key: JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP'
 
-
+　
     function queryWebCamsByCountry(countryObject, limit) {
         //curl --get --include 'https://webcamstravel.p.mashape.com/webcams/list/continent=AF?lang=en&show=webcams:player%3Aimage%2Clocation' -H 'X-Mashape-Key: JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP'
         var key = "JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP";
@@ -220,7 +211,7 @@ $(document).ready(function() {
             type: "GET",
             dataType: "json",
             processData: false,
-            success: function(data) {
+            success: function (data) {
 
                 if (data.result.total) {
                     console.log(data);
@@ -234,12 +225,10 @@ $(document).ready(function() {
                     liveWebCams.countryName = countryObject.name;
                     liveWebCams.totalCams = data.result.total;
                     liveWebCams.webcams = data.result.webcams;
-                    var newLength = countryWithLiveWebCams.push(liveWebCams);
-                    renderButton(liveWebCams, (newLength - 1));
-                    countryNamesWithLiveWebcams.push(countryObject.name);
+                    countryWithLiveWebCams.push(liveWebCams);
                 }
             },
-            error: function() {
+            error: function () {
                 console.log("Cannot get data");
             }
         });
@@ -266,13 +255,13 @@ $(document).ready(function() {
             dataType: "json",
             processData: false,
             async: false, // make this call a synchronous call rather than a ansynchronous
-            success: function(data) {
+            success: function (data) {
 
                 webcamObject.webcams = [];
                 webcamObject.webcams = data.result.webcams;
                 success = true;
             },
-            error: function() {
+            error: function () {
                 console.log("Cannot reach data");
 
                 success = false;
@@ -283,11 +272,11 @@ $(document).ready(function() {
         return success;
     }
 
-    function renderButton(webcamObject, index) {
+    function renderCountryOptions(webcamObject, index) {
         var offset = 0;
         var limit = maxLimit;
         console.log(JSON.stringify(webcamObject));
-        // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+
         var $list = $("<a>");
         // set the class
         $list.addClass("dropdown-item country-code m-1");
@@ -296,15 +285,7 @@ $(document).ready(function() {
         $list.attr("data-name", webcamObject.countryCode);
         $list.attr("value", index);
         // Providing the initial button text
-        $list.text(
-            webcamObject.countryName //+
-            //"(" +
-            //webcamObject.countryCode +
-            //")" +
-            //"(" +
-            //webcamObject.totalCams +
-            //")"
-        );
+        $list.text(webcamObject.countryName);
         // Adding the list to the list div
         $("#list").append($list)
 
@@ -340,8 +321,6 @@ $(document).ready(function() {
         $("#table-summary").empty();
         $("#table-summary").append($table);
     }
-
-    　
     // for the current country, this table will show details for each web camera available
     // sample JSON: {"countryCode":"AL","countryName":"Albania","totalCams":1,"webcams":[{"id":"1496005860","status":"active","title":"Tirana: Skanderbeg Square","image":{"current":{"icon":"https://images.webcams.travel/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/preview/1496005860.jpg","toenail":"https://images.webcams.travel/thumbnail/1496005860.jpg"},"daylight":{"icon":"https://images.webcams.travel/daylight/icon/1496005860.jpg","thumbnail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg","preview":"https://images.webcams.travel/daylight/preview/1496005860.jpg","toenail":"https://images.webcams.travel/daylight/thumbnail/1496005860.jpg"},"sizes":{"icon":{"width":48,"height":48},"thumbnail":{"width":200,"height":112},"preview":{"width":400,"height":224},"toenail":{"width":200,"height":112}},"update":1512921712},"location":{"city":"Tirana","region":"Tiranë","region_code":"AL.50","country":"Albania","country_code":"AL","continent":"Europe","continent_code":"EU","latitude":41.327398,"longitude":19.818828,"timezone":"Europe/Tirane"},"url":{"current":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square"},"daylight":{"desktop":"https://www.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight","mobile":"https://m.webcams.travel/webcam/1496005860-tirana-skanderbeg-square/daylight"},"edit":"https://lookr.com/edit/1496005860"}}]}
 
@@ -433,8 +412,6 @@ $(document).ready(function() {
 
             $table.append($tableRow);
         } // end for row loop
-
-        　
         $("#table-details").empty();
         $("#table-details").append($table);
     }
@@ -477,13 +454,37 @@ $(document).ready(function() {
         }
     }
 
+    function renderWebCamVideo(webcamId, webcamObject, live) {
+        // sample: <a name="lkr-timelapse-player" data-id="1010244116" data-play="live" href="https://lookr.com/1010244116" target="_blank">Lausanne › South-East: Place de la Palud</a><script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>
+        var $webCam = $("<a>");
+        $webCam.attr("name", "lkr-timelapse-player");
+        $webCam.attr("data-id", webcamId);
+        $webCam.attr("data-play", (live) ? "live" : "day");
+        $webCam.attr("href", (live) ? webcamObject.player.live.embed : webcamObject.player.day.embed);
+        $webCam.attr("target", "_blank");
+        $webCam.text(webcamObject.title);
+
+        $("#embedded-video").empty();
+        $("#embedded-video").append($webCam);
+        $("#embedded-video").append('<script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>');
+
+        $("#video-title").text(webcamObject.title);
+        $("#video-city-country").text(webcamObject.location.city + ", " + webcamObject.location.country);
+
+        scrollTo(0, 0); ///=======scrolling to top after button pressed
+    }
 
     getCountryCodes();
 
-
-    // Adding a click event listener to all elements with a class of "animal"
-    $(document).on("click", ".country-code", function() {
+    // Adding a click event listener to all elements with a class of "country-code"
+    $(document).on("click", ".country-code", function () {
         var value = $(this).attr("value");
+        // clear some elements on the page
+        $("#embedded-video").empty();
+        $("#video-title").text("");
+        $("#video-city-country").text("");
+
+        // get webcam data for selected country
         currentCountryObject.countryCode = countryWithLiveWebCams[value].countryCode;
         currentCountryObject.countryName = countryWithLiveWebCams[value].countryName;
         currentCountryObject.totalCams = countryWithLiveWebCams[value].totalCams;
@@ -511,7 +512,7 @@ $(document).ready(function() {
         setNextButtonState(currentCountryObject.pages.page, currentCountryObject.pages.total);
     });
 
-    $(document).on("click", "#back-button", function() {
+    $(document).on("click", "#back-button", function () {
         var limit = maxLimit;
         var offset = myOffset - maxLimit;
 
@@ -527,11 +528,9 @@ $(document).ready(function() {
         console.log("current page: " + currentCountryObject.pages.current);
         setBackButtonState(currentCountryObject.pages.current);
         setNextButtonState(currentCountryObject.pages.current, currentCountryObject.pages.total);
-
-        　
     });
 
-    $(document).on("click", "#next-button", function() {
+    $(document).on("click", "#next-button", function () {
         var limit = maxLimit;
         var offset = myOffset + maxLimit;
 
@@ -547,52 +546,21 @@ $(document).ready(function() {
         console.log("current page: " + currentCountryObject.pages.current);
         setBackButtonState(currentCountryObject.pages.current);
         setNextButtonState(currentCountryObject.pages.current, currentCountryObject.pages.total);
-
-        　
     });
 
-    $(document).on("click", "#live-webcam", function() {
-        var index = $(this).attr("value");
+    $(document).on("click", "#live-webcam", function () {
         var webCamId = $(this).attr("value");
-        var webCamTitle = $(this).attr("name");
         var webCamObject = getWebcamById(webCamId);
-        scrollTo(0, 0); ///=======scrolling to top after button pressed
         if (webCamObject !== undefined) {
-            // sample: <a name="lkr-timelapse-player" data-id="1010244116" data-play="live" href="https://lookr.com/1010244116" target="_blank">Lausanne › South-East: Place de la Palud</a><script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>
-            var $webCam = $("<a>");
-            $webCam.attr("name", "lkr-timelapse-player");
-            $webCam.attr("data-id", webCamId);
-            $webCam.attr("data-play", "live");
-            $webCam.attr("href", webCamObject.player.live.embed);
-            $webCam.attr("target", "_blank");
-            $webCam.text(webCamTitle);
-
-            $("#embedded-video").empty();
-            $("#embedded-video").append($webCam);
-            $("#embedded-video").append('<script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>');
+            renderWebCamVideo(webCamId, webCamObject, true);
         }
     });
 
-    　
-    $(document).on("click", "#day-webcam", function() {
-        var index = $(this).attr("value");
+    $(document).on("click", "#day-webcam", function () {
         var webCamId = $(this).attr("value");
-        var webCamTitle = $(this).attr("name");
         var webCamObject = getWebcamById(webCamId);
-        scrollTo(0, 0); ///=======scrolling to top after button pressed
         if (webCamObject !== undefined) {
-            // sample: <a name="lkr-timelapse-player" data-id="1381307807" data-play="day" href="https://lookr.com/1381307807" target="_blank">Pieksämäki: Pieksämäen asemanseutua</a><script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>
-            var $webCam = $("<a>");
-            $webCam.attr("name", "lkr-timelapse-player");
-            $webCam.attr("data-id", webCamId);
-            $webCam.attr("data-play", "day");
-            $webCam.attr("href", webCamObject.player.day.embed + "?autoplay=1");
-            $webCam.attr("target", "_blank");
-            $webCam.text(webCamTitle);
-
-            $("#embedded-video").empty();
-            $("#embedded-video").append($webCam);
-            $("#embedded-video").append('<script async type="text/javascript" src="https://api.lookr.com/embed/script/player.js"></script>');
+            renderWebCamVideo(webCamId, webCamObject, false);
         }
     });
 
