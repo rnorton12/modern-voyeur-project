@@ -164,7 +164,6 @@ $(document).ready(function() {
     displayEUWebcam();
 
 
-
     // ISO 3166-1-alpha-2 - country codes
     function getCountryCodes() {
         var offset = myOffset;
