@@ -54,6 +54,11 @@ th {
     width: 60%;
 }
 
+#instructions {
+    margin-right: 20px;
+    opacity: .75;
+}
+
 table {
     table-layout: fixed;
 }

@@ -82,7 +82,9 @@ $(document).ready(function() {
             disableBackButton();
         }
     }
-
+    $(function() {
+        $('[data-toggle="popover"]').popover()
+    })
     hideButtons();
 
     function hideButtons() {
