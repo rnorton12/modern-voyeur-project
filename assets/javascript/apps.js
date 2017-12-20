@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function() {
     // defines the maximum number of webcams requested for the ajax call to get webcams
     var maxLimit = 10;
     // defines the starting point from which to begin the ajax call
@@ -28,6 +28,7 @@ $(document).ready(function () {
 
     // update progress for loading page data
     var countryName = "";
+
     function updateProgress() {
         var text = "Please wait while loading Country Options: ";
         if (timerTick === 20) {
@@ -93,7 +94,7 @@ $(document).ready(function () {
     }
 
     // toggles the state of the popover text
-    $(function () {
+    $(function() {
         $('[data-toggle="popover"]').popover()
     })
 
@@ -110,7 +111,7 @@ $(document).ready(function () {
     }
 
     //hiding the button on webpage load, need to .show() when user clicks on webcam country　
-    $(".dropdown-item").on("click", function () {
+    $(".dropdown-item").on("click", function() {
         showButtons();
         $("iframe").slideUp(900);
         $("#pageDescription").fadeOut(1000);
@@ -125,17 +126,22 @@ $(document).ready(function () {
     });
 
     // display initial webcam after page loads
-    function displayInitialWebCam() {
+    function displayWebcamById(webCamId) {
 
         var key = "JPZH8HA6lBmshdutMhV7vXqrSTydp1Ov8CljsnUVWnKklt18RP";
-        var webCamId = 1384609657;
+
         $.ajax({
             url: "https://webcamstravel.p.mashape.com/webcams/list/webcam=" + webCamId + "?lang=en&show=webcams%3Aimage%2Clocation%2Curl%2Cplayer",
             headers: {
                 "X-Mashape-Key": key
             },
             type: "GET",
-            success: function (response) {
+            dataType: "json",
+            // setting the process data to false was important to get this ajax call to work.
+            // From the JQUERY docs: Data to be sent to the server. It is converted to a query string, if not already a string. 
+            // It's appended to the url for GET-requests. See processData option to prevent this automatic processing.
+            processData: false,
+            success: function(response) {
                 console.log(response);
 
                 if (response.result.total > 0) {
@@ -143,7 +149,7 @@ $(document).ready(function () {
                 }
             },
 
-            error: function () {
+            error: function() {
                 console.log("no webcam");
             }
 
@@ -153,11 +159,11 @@ $(document).ready(function () {
     function getCountryCodes() {
         var offset = myOffset;
         var limit = maxLimit;
-        timer = setInterval(function () { updateProgress() }, 100); // start the timer for updating progress
+        timer = setInterval(function() { updateProgress() }, 100); // start the timer for updating progress
         $.ajax({
             url: "https://restcountries.eu/rest/v2/all",
             type: "GET",
-            success: function (data) {
+            success: function(data) {
                 console.log(data);
                 console.log("country Code Count: " + data.length);
 
@@ -179,9 +185,9 @@ $(document).ready(function () {
                 }
 
                 // all ajax calls have completed.  now process the data
-                $.when.apply($, requests).then(function () {
+                $.when.apply($, requests).then(function() {
                     // sort the webcams by country name
-                    countryWithLiveWebCams.sort(function (a, b) {
+                    countryWithLiveWebCams.sort(function(a, b) {
                         var nameA = a.countryName.toLowerCase();
                         var nameB = b.countryName.toLowerCase();
 
@@ -198,10 +204,10 @@ $(document).ready(function () {
                         renderCountryOptions(countryWithLiveWebCams[i], i);
                     }
                     clearProgress();
-                    displayInitialWebCam();
+                    displayWebcamById("1499677860");
                 });
             },
-            error: function () {
+            error: function() {
                 console.log("error getting country codes");
             }
         });
@@ -228,8 +234,8 @@ $(document).ready(function () {
             // setting the process data to false was important to get this ajax call to work.
             // From the JQUERY docs: Data to be sent to the server. It is converted to a query string, if not already a string. 
             // It's appended to the url for GET-requests. See processData option to prevent this automatic processing.
-            processData: false,  // this
-            success: function (data) {
+            processData: false, // this
+            success: function(data) {
 
                 if (data.result.total) {
                     console.log(data);
@@ -248,7 +254,7 @@ $(document).ready(function () {
                     countryName = countryObject.name; // for updating progress
                 }
             },
-            error: function () {
+            error: function() {
                 console.log("Cannot get data");
             }
         });
@@ -281,13 +287,13 @@ $(document).ready(function () {
             // ajax calls occurring at the same time in the case where the user double-clicked the
             // back or next button.
             async: false,
-            success: function (data) {
+            success: function(data) {
 
                 webcamObject.webcams = [];
                 webcamObject.webcams = data.result.webcams;
                 success = true;
             },
-            error: function () {
+            error: function() {
                 console.log("Cannot reach data");
 
                 success = false;
@@ -513,7 +519,7 @@ $(document).ready(function () {
 
     // Adding a click event listener to all elements with a class of "country-code"
     // this supports a button click on the navbar dropdown menu
-    $(document).on("click", ".country-code", function () {
+    $(document).on("click", ".country-code", function() {
         var value = $(this).attr("value");
         // clear some elements on the page
         $("#embedded-video").empty();
@@ -550,7 +556,7 @@ $(document).ready(function () {
     });
 
     // display the previous webcam table if available
-    $(document).on("click", "#back-button", function () {
+    $(document).on("click", "#back-button", function() {
         var limit = maxLimit;
         var offset = myOffset - maxLimit;
 
@@ -569,7 +575,7 @@ $(document).ready(function () {
     });
 
     // display the next webcam table if available
-    $(document).on("click", "#next-button", function () {
+    $(document).on("click", "#next-button", function() {
         var limit = maxLimit;
         var offset = myOffset + maxLimit;
 
@@ -588,7 +594,7 @@ $(document).ready(function () {
     });
 
     // click event handler for the live webcam button
-    $(document).on("click", "#live-webcam", function () {
+    $(document).on("click", "#live-webcam", function() {
         var webCamId = $(this).attr("value");
         var webCamObject = getWebcamById(webCamId);
         if (webCamObject !== undefined) {
@@ -597,13 +603,25 @@ $(document).ready(function () {
     });
 
     // click event handler for the replay webcam button
-    $(document).on("click", "#day-webcam", function () {
+    $(document).on("click", "#day-webcam", function() {
         var webCamId = $(this).attr("value");
         var webCamObject = getWebcamById(webCamId);
         if (webCamObject !== undefined) {
             renderWebCamVideo(webCamId, webCamObject, false);
         }
     });
+
+
+    $(document).on("click", ".recommended", function() {
+        var webCamId = $(this).attr("id");
+        console.log(webCamId);
+        displayWebcamById(webCamId);
+        hideButtons();
+        $("#table-summary").empty();
+        $("#table-details").empty();
+    });
+
+
 
 });
 
